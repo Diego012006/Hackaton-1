@@ -13,10 +13,10 @@ import java.util.*;
 @Component
 public class JwtUtils {
 
-    @Value("${jwt.secret}")               // clave BASE64
+    @Value("${jwt.secret}") 
     private String jwtSigningKey;
 
-    @Value("${jwt.expiresMillis:86400000}") // 24h por defecto
+    @Value("${jwt.expiresMillis:86400000}")
     private long expiresMillis;
 
     public String extractUsername(String token) {
@@ -33,11 +33,23 @@ public class JwtUtils {
                 .compact();
     }
 
+    public String generateToken(UserDetails user) {
+        Map<String, Object> claims = new HashMap<>();
+        return generateToken(user, claims); // ✅ orden correcto
+    }
+
+    public String generateToken(Map<String, Object> extraClaims, UserDetails user) {
+        return generateToken(user, extraClaims);
+    }
+
     public boolean isTokenValid(String token, UserDetails user) {
         return extractUsername(token).equals(user.getUsername()) && !isExpired(token);
     }
 
-    public long getExpiresSeconds() { return expiresMillis / 1000; }
+    public long getExpiresSeconds() {
+        return expiresMillis / 1000;
+    }
+
 
     private boolean isExpired(String token) {
         return extractClaim(token, Claims::getExpiration).before(new Date());
@@ -48,8 +60,11 @@ public class JwtUtils {
     }
 
     private Claims parseAll(String token) {
-        return Jwts.parserBuilder().setSigningKey(getKey()).build()
-                .parseClaimsJws(token).getBody();
+        return Jwts.parserBuilder()
+                .setSigningKey(getKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 
     private Key getKey() {

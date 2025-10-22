@@ -8,15 +8,17 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class JwtService {
 
-    @Value("${jwt.secret}")       // BASE64
+    @Value("${jwt.secret}")
     private String jwtSigningKey;
 
-    @Value("${jwt.expiresMillis:86400000}") // 24h por defecto
+    @Value("${jwt.expiresMillis:86400000}")
     private long expiresMillis;
 
     public String extractUserName(String token) {
@@ -34,7 +36,12 @@ public class JwtService {
     }
 
     public String generateToken(UserDetails userDetails) {
-        return generateToken(new HashMap<>(), userDetails);
+        Map<String, Object> claims = new HashMap<>();
+        return generateToken(userDetails, claims);
+    }
+
+    public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
+        return generateToken(userDetails, extraClaims);
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {

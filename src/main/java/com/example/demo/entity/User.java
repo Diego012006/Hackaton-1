@@ -13,20 +13,22 @@ import java.util.Collection;
 import java.util.List;
 
 @Entity
+@Table(name = "users") // <- evita la palabra reservada "user"
 @AllArgsConstructor @NoArgsConstructor
-@Setter
-@Getter
+@Setter @Getter
 public class User implements UserDetails {
+
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false)        // username para login
+    @Column(unique = true, nullable = false) // username para login
     @NotBlank
     private String username;
 
     private String nombreCompleto;
 
     @Email
+    @Column(unique = true) // <-- según requisitos, email también debe ser único
     private String email;
 
     @Column(nullable = false)
@@ -43,13 +45,18 @@ public class User implements UserDetails {
     private Boolean locked = false;
     private Boolean credentialsExpired = false;
     private Boolean enable = true;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @PrePersist
+    void onCreate() {
+        if (createdAt == null) createdAt = LocalDateTime.now(); // evita fallos por null en tests/seeds
+    }
 
     @Override public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));
     }
-
     @Override public String getUsername() { return username; }
     @Override public boolean isAccountNonExpired() { return !expired; }
     @Override public boolean isAccountNonLocked() { return !locked; }

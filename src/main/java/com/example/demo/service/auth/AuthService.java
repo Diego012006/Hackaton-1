@@ -2,10 +2,13 @@ package com.example.demo.service.auth;
 
 import com.example.demo.config.JwtUtils;
 import com.example.demo.dto.auth.*;
+import com.example.demo.dto.user.UserResponse;
 import com.example.demo.entity.Role;
 import com.example.demo.entity.User;
+import com.example.demo.exception.BusinessException;
 import com.example.demo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,9 +24,16 @@ public class AuthService {
     private final JwtUtils jwtUtils;
     private final AuthenticationManager authenticationManager;
 
-    public JwtAuthResponse register(RegisterRequest req) {
+    public UserResponse register(RegisterRequest req) {
         if (!Role.contiene(req.getRole()))
             throw new IllegalArgumentException("Role debe ser CENTRAL o BRANCH");
+
+        userRepository.findByUsername(req.getUsername()).ifPresent(u -> {
+            throw new BusinessException(HttpStatus.CONFLICT, "El username ya está registrado");
+        });
+        userRepository.findByEmail(req.getEmail()).ifPresent(u -> {
+            throw new BusinessException(HttpStatus.CONFLICT, "El email ya está registrado");
+        });
 
         Role role = Role.valueOf(req.getRole().toUpperCase());
         if (role == Role.BRANCH && (req.getBranch() == null || req.getBranch().isBlank()))
@@ -36,14 +46,16 @@ public class AuthService {
         u.setPassword(passwordEncoder.encode(req.getPassword()));
         u.setRole(role);
         u.setBranch(req.getBranch());
-        userRepository.save(u);
+        User saved = userRepository.save(u);
 
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("role", role.name());
-        claims.put("branch", u.getBranch());
-
-        String token = jwtUtils.generateToken(u, claims);
-        return new JwtAuthResponse(token, jwtUtils.getExpiresSeconds(), role.name(), u.getBranch());
+        return UserResponse.builder()
+                .id(saved.getId())
+                .username(saved.getUsername())
+                .email(saved.getEmail())
+                .role(saved.getRole())
+                .branch(saved.getBranch())
+                .createdAt(saved.getCreatedAt())
+                .build();
     }
 
     public JwtAuthResponse login(LoginRequest req) {

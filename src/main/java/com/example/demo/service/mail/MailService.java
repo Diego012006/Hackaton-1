@@ -6,6 +6,7 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import java.time.format.DateTimeFormatter;
 public class MailService {
 
     private final JavaMailSender mailSender;
+    private final PdfGenerator pdfGenerator;
 
     private static final DateTimeFormatter SUBJECT_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
@@ -32,11 +34,18 @@ public class MailService {
 
             if (event.isPremium()) {
                 String htmlBody = buildPremiumHtml(event, aggregates, summaryText);
-                helper.setText(htmlBody, true);
-            } else {
-                String plainBody = buildPlainBody(event, aggregates, summaryText);
-                helper.setText(plainBody, false);
+                if (event.isAttachPdf()) {
+                    byte[] pdfBytes = pdfGenerator.generatePdf(htmlBody);
+                    helper = new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
+                    helper.setTo(event.getEmailTo());
+                    helper.setSubject(buildSubject(event));
+                    helper.setText(htmlBody, true);
+                    helper.addAttachment("reporte_oreo.pdf", new ByteArrayResource(pdfBytes));
+                } else {
+                    helper.setText(htmlBody, true);
+                }
             }
+
 
             mailSender.send(message);
             log.info("✅ Email enviado exitosamente para request: {}", event.getRequestId());

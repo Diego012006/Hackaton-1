@@ -162,7 +162,6 @@ class SalesRepositoryTest {
     @Test
     @DisplayName("Filtrado por sucursal: (en memoria) solo se consideran ventas de esa sucursal")
     void filter_byBranch_onlyThatBranch() {
-        // Tomamos todo y filtramos en memoria por branch
         List<Sale> mira = salesRepository.findAll().stream()
                 .filter(s -> "Miraflores".equalsIgnoreCase(s.getBranch()))
                 .toList();

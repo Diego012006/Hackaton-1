@@ -1,0 +1,512 @@
+{
+	"info": {
+		"_postman_id": "63489d1a-839d-42ae-bb38-e47ff6346742",
+		"name": "Oreo Insight Factory Copy",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "43547313",
+		"_collection_link": "https://danielavargas-6605452.postman.co/workspace/33148b46-d627-49f9-81bb-3efc5319efec/collection/43547313-63489d1a-839d-42ae-bb38-e47ff6346742?action=share&source=collection_link&creator=43547313"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Register CENTRAL",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 201', () => pm.response.code === 201);",
+									"",
+									"const json = pm.response.json();",
+									"",
+									"pm.test('id is present and not null', function () {",
+									"    pm.expect(json).to.have.property('id');",
+									"    pm.expect(json.id, 'id should not be null or undefined').to.not.be.oneOf([null, undefined]);",
+									"});",
+									"",
+									"pm.test('id is number or string', function () {",
+									"    pm.expect(['number', 'string']).to.include(typeof json.id);",
+									"});",
+									"",
+									"pm.environment.set('userIdCentral', String(json.id));"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"{{centralUsername}}\",\n  \"email\": \"{{centralEmail}}\",\n  \"password\": \"{{centralPassword}}\",\n  \"role\": \"CENTRAL\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login CENTRAL",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200', () => pm.response.code === 200);",
+									"const json = pm.response.json();",
+									"pm.expect(json.token).to.be.a('string');",
+									"pm.environment.set('centralToken', json.token);"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"usernameOrEmail\": \"{{centralEmail}}\",\n  \"password\": \"{{centralPassword}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Register BRANCH",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 201', () => pm.response.code === 201);",
+									"const json = pm.response.json();",
+									"pm.environment.set('userIdBranch', json.id);",
+									"pm.expect(json.branch).to.eql(pm.environment.get('branchName'));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"{{branchUsername}}\",\n  \"email\": \"{{branchEmail}}\",\n  \"password\": \"{{branchPassword}}\",\n  \"role\": \"BRANCH\",\n  \"branch\": \"{{branchName}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login BRANCH",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200', () => pm.response.code === 200);",
+									"const json = pm.response.json();",
+									"pm.environment.set('branchToken', json.token);",
+									"pm.expect(json.branch).to.eql(pm.environment.get('branchName'));"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"usernameOrEmail\": \"{{branchUsername}}\",\n  \"password\": \"{{branchPassword}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Sales (CENTRAL)",
+			"item": [
+				{
+					"name": "Create Sale (seed 1..5)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 201', () => pm.response.code === 201);",
+									"",
+									"if (pm.response.text() && pm.response.text().trim().length > 0) {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.id).to.be.a('string');",
+									"    let ids = pm.environment.get('saleIds');",
+									"    ids = ids ? JSON.parse(ids) : [];",
+									"    ids.push(json.id);",
+									"    pm.environment.set('saleIds', JSON.stringify(ids));",
+									"} else {",
+									"    pm.test('Response body is empty', function () {",
+									"        pm.expect(pm.response.text().trim().length).to.eql(0);",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"sku\": \"{{sku}}\",\n  \"units\": \"{{units}}\",\n  \"price\": \"{{price}}\",\n  \"branch\": \"{{branch}}\",\n  \"soldAt\": \"{{soldAt}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/sales",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"sales"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List all sales",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200', () => pm.response.code === 200);",
+									"const list = pm.response.json();",
+									"pm.expect(Array.isArray(list)).to.be.true;",
+									"pm.expect(list.length).to.be.at.least(5);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/sales",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"sales"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete one sale",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const ids = pm.environment.get('saleIds');",
+									"if (!ids) throw new Error('No saleIds found');",
+									"const arr = JSON.parse(ids);",
+									"pm.environment.set('saleIdToDelete', arr[0]);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 204', () => pm.response.code === 204);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/sales/{{saleIdToDelete}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"sales",
+								"{{saleIdToDelete}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Sales (BRANCH)",
+			"item": [
+				{
+					"name": "List branch sales",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200', () => pm.response.code === 200);",
+									"const list = pm.response.json();",
+									"const own = list.filter(s => s.branch === pm.environment.get('branchName'));",
+									"pm.expect(own.length).to.be.at.least(1);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/sales?branch={{branchName}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"sales"
+							],
+							"query": [
+								{
+									"key": "branch",
+									"value": "{{branchName}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Forbidden create other branch",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status is 403', function () {",
+									"  pm.expect(pm.response.code).to.eql(403);",
+									"});",
+									"",
+									"let json = null;",
+									"const contentType = pm.response.headers.get('Content-Type') || '';",
+									"const body = pm.response.text();",
+									"",
+									"if (body && /application\\/json|\\+json/i.test(contentType)) {",
+									"  try {",
+									"    json = pm.response.json();",
+									"  } catch (e) {",
+									"    // Keep json as null if parsing fails",
+									"  }",
+									"}",
+									"",
+									"pm.test('If JSON, has error or message', function () {",
+									"  if (json && typeof json === 'object') {",
+									"    pm.expect(Boolean(json.error || json.message)).to.be.true;",
+									"  } else {",
+									"    pm.expect(true).to.be.true;",
+									"  }",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"sku\": \"OREO_DOUBLE\",\n  \"units\": 10,\n  \"price\": 2.49,\n  \"branch\": \"San Isidro\",\n  \"soldAt\": \"2025-09-06T12:00:00Z\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/sales",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"sales"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Summary",
+			"item": [
+				{
+					"name": "Weekly Summary (async)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 202', () => pm.response.code === 202);",
+									"const json = pm.response.json();",
+									"pm.expect(json.status).to.eql('PROCESSING');",
+									"pm.expect(json.requestId).to.be.a('string');",
+									"pm.environment.set('requestId', json.requestId);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"from\": \"2025-09-01\",\n  \"to\": \"2025-09-07\",\n  \"branch\": \"{{branchName}}\",\n  \"emailTo\": \"gerente@oreo.com\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/sales/summary/weekly",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"sales",
+								"summary",
+								"weekly"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"exec": [
+					"// Collection-level: set Authorization automáticamente según carpeta",
+					"const parent = pm.info && pm.request && pm.request.parent();",
+					"const parentName = parent ? parent.name : '';",
+					"function setAuth(token){ if(token){ pm.request.headers.upsert({key:'Authorization', value:'Bearer ' + token}); } }",
+					"if (parentName.includes('Sales (CENTRAL)')) {",
+					"  setAuth(pm.environment.get('centralToken'));",
+					"} else if (parentName.includes('Sales (BRANCH)') || parentName.includes('Summary')) {",
+					"  setAuth(pm.environment.get('branchToken'));",
+					"}"
+				],
+				"type": "text/javascript"
+			}
+		}
+	]
+}

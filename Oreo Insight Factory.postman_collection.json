@@ -1,0 +1,327 @@
+{
+  "info": {
+    "_postman_id": "6a7cde45-oreo-collection",
+    "name": "Oreo Insight Factory",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_exported_using": "Postman/11.x"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register CENTRAL",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{centralUsername}}\",\n  \"email\": \"{{centralEmail}}\",\n  \"password\": \"{{centralPassword}}\",\n  \"role\": \"CENTRAL\"\n}"
+            },
+            "auth": { "type": "noauth" }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.code === 201);",
+                  "const json = pm.response.json();",
+                  "pm.expect(json.id).to.be.a('string');",
+                  "pm.environment.set('userIdCentral', json.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login CENTRAL",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{centralUsername}}\",\n  \"password\": \"{{centralPassword}}\"\n}"
+            },
+            "auth": { "type": "noauth" }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.code === 200);",
+                  "const json = pm.response.json();",
+                  "pm.expect(json.token).to.be.a('string');",
+                  "pm.environment.set('centralToken', json.token);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Register BRANCH",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{branchUsername}}\",\n  \"email\": \"{{branchEmail}}\",\n  \"password\": \"{{branchPassword}}\",\n  \"role\": \"BRANCH\",\n  \"branch\": \"{{branchName}}\"\n}"
+            },
+            "auth": { "type": "noauth" }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.code === 201);",
+                  "const json = pm.response.json();",
+                  "pm.environment.set('userIdBranch', json.id);",
+                  "pm.expect(json.branch).to.eql(pm.environment.get('branchName'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login BRANCH",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{branchUsername}}\",\n  \"password\": \"{{branchPassword}}\"\n}"
+            },
+            "auth": { "type": "noauth" }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.code === 200);",
+                  "const json = pm.response.json();",
+                  "pm.environment.set('branchToken', json.token);",
+                  "pm.expect(json.branch).to.eql(pm.environment.get('branchName'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Sales (CENTRAL)",
+      "item": [
+        {
+          "name": "Create Sale (seed 1..5)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{baseUrl}}/sales", "host": ["{{baseUrl}}"], "path": ["sales"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sku\": \"{{sku}}\",\n  \"units\": {{units}},\n  \"price\": {{price}},\n  \"branch\": \"{{branch}}\",\n  \"soldAt\": \"{{soldAt}}\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.code === 201);",
+                  "const json = pm.response.json();",
+                  "pm.expect(json.id).to.be.a('string');",
+                  "let ids = pm.environment.get('saleIds');",
+                  "ids = ids ? JSON.parse(ids) : [];",
+                  "ids.push(json.id);",
+                  "pm.environment.set('saleIds', JSON.stringify(ids));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "List all sales",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/sales", "host": ["{{baseUrl}}"], "path": ["sales"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.code === 200);",
+                  "const list = pm.response.json();",
+                  "pm.expect(Array.isArray(list)).to.be.true;",
+                  "pm.expect(list.length).to.be.at.least(5);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete one sale",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const ids = pm.environment.get('saleIds');",
+                  "if (!ids) throw new Error('No saleIds found');",
+                  "const arr = JSON.parse(ids);",
+                  "pm.environment.set('saleIdToDelete', arr[0]);"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": ["pm.test('Status 204', () => pm.response.code === 204);"],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/sales/{{saleIdToDelete}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["sales", "{{saleIdToDelete}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Sales (BRANCH)",
+      "item": [
+        {
+          "name": "List branch sales",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/sales?branch={{branchName}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["sales"],
+              "query": [{ "key": "branch", "value": "{{branchName}}" }]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.code === 200);",
+                  "const list = pm.response.json();",
+                  "const own = list.filter(s => s.branch === pm.environment.get('branchName'));",
+                  "pm.expect(own.length).to.be.at.least(1);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Forbidden create other branch",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/sales", "host": ["{{baseUrl}}"], "path": ["sales"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sku\": \"OREO_DOUBLE\",\n  \"units\": 10,\n  \"price\": 2.49,\n  \"branch\": \"San Isidro\",\n  \"soldAt\": \"2025-09-06T12:00:00Z\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 403', () => pm.response.code === 403);",
+                  "const j = pm.response.json();",
+                  "pm.expect(j.error || j.message).to.be.ok;"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Summary",
+      "item": [
+        {
+          "name": "Weekly Summary (async)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/sales/summary/weekly",
+              "host": ["{{baseUrl}}"],
+              "path": ["sales", "summary", "weekly"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"from\": \"2025-09-01\",\n  \"to\": \"2025-09-07\",\n  \"branch\": \"{{branchName}}\",\n  \"emailTo\": \"gerente@oreo.com\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 202', () => pm.response.code === 202);",
+                  "const json = pm.response.json();",
+                  "pm.expect(json.status).to.eql('PROCESSING');",
+                  "pm.expect(json.requestId).to.be.a('string');",
+                  "pm.environment.set('requestId', json.requestId);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "exec": [
+          "// Collection-level: set Authorization automáticamente según carpeta",
+          "const parent = pm.info && pm.request && pm.request.parent();",
+          "const parentName = parent ? parent.name : '';",
+          "function setAuth(token){ if(token){ pm.request.headers.upsert({key:'Authorization', value:'Bearer ' + token}); } }",
+          "if (parentName.includes('Sales (CENTRAL)')) {",
+          "  setAuth(pm.environment.get('centralToken'));",
+          "} else if (parentName.includes('Sales (BRANCH)') || parentName.includes('Summary')) {",
+          "  setAuth(pm.environment.get('branchToken'));",
+          "}"
+        ],
+        "type": "text/javascript"
+      }
+    }
+  ]
+}

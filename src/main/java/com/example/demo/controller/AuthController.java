@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.auth.*;
+import com.example.demo.dto.user.UserResponse;
 import com.example.demo.service.auth.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +16,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<JwtAuthResponse> register(@Valid @RequestBody RegisterRequest request) {
+    public ResponseEntity<UserResponse> register(@Valid @RequestBody RegisterRequest request) {
         return ResponseEntity.status(201).body(authService.register(request));
     }
 
